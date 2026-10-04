@@ -1,3 +1,4 @@
+using GUIFramework;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -23,6 +24,7 @@ namespace malafein.Valheim.SharedUI
     //                        Norsebold "Crafting" window header
     //   - body              : Compendium body font
     //   - scrollbar         : a clone of the Compendium vertical scrollbar
+    //   - text field        : a clone of the sign/rename dialog's input field
     //
     // Vanilla GUI components are reached via Resources.FindObjectsOfTypeAll
     // (returns inactive objects too) so this resolves even when those panels
@@ -63,6 +65,9 @@ namespace malafein.Valheim.SharedUI
 
         // Vertical scrollbar template (Compendium scrollbar) to clone per list.
         private static Scrollbar _scrollbarTemplate;
+
+        // Text field template (the sign/rename dialog's input field) to clone per field.
+        private static GuiInputField _inputFieldTemplate;
 
         public static TMP_FontAsset BodyFont     { get { Resolve(); return _bodyFont; } }
         // The Compendium body's outline material — gives body text the same crisp
@@ -200,6 +205,38 @@ namespace malafein.Valheim.SharedUI
             return sb;
         }
 
+        // ── Text field ───────────────────────────────────────────────────────
+
+        // Clone the vanilla text field (the sign/rename dialog's) into `parent`,
+        // so typing looks and behaves like vanilla. TextInput's OnEnter/OnInput/
+        // OnCancel are called from no code, so they're hooked to this field's
+        // events in the scene, and Instantiate copies those hooks: Enter in the
+        // clone would submit/hide the vanilla dialog. Every event is replaced
+        // with an empty one; GuiInputField adds its own runtime listeners later,
+        // in Start. Single line, empty, not focused. The caller sets the rect.
+        // Returns null if the template couldn't be found.
+        public static TMP_InputField CloneInputField(RectTransform parent)
+        {
+            Resolve();
+            if (_inputFieldTemplate == null) return null;
+
+            var clone = Object.Instantiate(_inputFieldTemplate.gameObject, parent);
+            clone.name = "InputField";
+            clone.SetActive(true);
+
+            var field = clone.GetComponent<GuiInputField>();
+            field.onValueChanged = new TMP_InputField.OnChangeEvent();
+            field.onEndEdit      = new TMP_InputField.SubmitEvent();
+            field.onSubmit       = new TMP_InputField.SubmitEvent();
+            field.onSelect       = new TMP_InputField.SelectionEvent();
+            field.onDeselect     = new TMP_InputField.SelectionEvent();
+            field.OnInputSubmit  = new OnInputSubmitEvent();
+            field.lineType       = TMP_InputField.LineType.SingleLine;
+            field.characterLimit = 0;
+            field.text           = "";
+            return field;
+        }
+
         // ── Resolution ───────────────────────────────────────────────────────
 
         private static void Resolve()
@@ -211,11 +248,13 @@ namespace malafein.Valheim.SharedUI
             ResolvePanelBackground();
             ResolveButton();
             ResolveScrollbar();
+            ResolveInputField();
 
             Log.Debug(
                 $"VanillaUI resolved: title={Name(_titleFont)} body={Name(_bodyFont)} " +
                 $"panel={(_hasPanel ? $"{_panelSprite.name} colour={_panelColor}" : "<flat>")} " +
-                $"button={(_hasButton ? $"{_buttonSprite.name} transition={_btnTransition}" : "<flat>")}");
+                $"button={(_hasButton ? $"{_buttonSprite.name} transition={_btnTransition}" : "<flat>")} " +
+                $"inputField={(_inputFieldTemplate != null ? "vanilla" : "<none>")}");
         }
 
         private static void ResolveFonts()
@@ -334,6 +373,17 @@ namespace malafein.Valheim.SharedUI
             if (dialogs.Length == 0) return;
             var d = dialogs[0];
             _scrollbarTemplate = d.m_rightScrollbar != null ? d.m_rightScrollbar : d.m_leftScrollbar;
+        }
+
+        private static void ResolveInputField()
+        {
+            TextInput textInput = TextInput.instance;
+            if (textInput == null)
+            {
+                var all = Resources.FindObjectsOfTypeAll<TextInput>();
+                if (all.Length > 0) textInput = all[0];
+            }
+            if (textInput != null) _inputFieldTemplate = textInput.m_inputField;
         }
 
         private static InventoryGui ResolveInventoryGui()

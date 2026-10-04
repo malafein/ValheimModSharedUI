@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace malafein.Valheim.SharedUI
@@ -47,6 +48,38 @@ namespace malafein.Valheim.SharedUI
 
             if (wasActive) go.SetActive(true);
             return tmp;
+        }
+
+        // A button with the vanilla Craft-button look and hover/press states and a
+        // centred label. The caller sets the rect.
+        public static Button AddButton(
+            Transform parent,
+            string name,
+            string label,
+            UnityAction onClick,
+            float fontSize = 18f)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
+            go.transform.SetParent(parent, false);
+
+            var btn = go.GetComponent<Button>();
+            VanillaUI.StyleButton(btn, go.GetComponent<Image>());
+            if (onClick != null) btn.onClick.AddListener(onClick);
+
+            var labelRt = MakeChildRect(go.transform, "Label");
+            Stretch(labelRt);
+            var text = AddText(labelRt, label, VanillaUI.BodyFont, fontSize, TextAlignmentOptions.Center);
+            VanillaUI.ApplyButtonLabelStyle(text);
+            return btn;
+        }
+
+        // Fill the parent rect, inset by `inset` on every side.
+        public static void Stretch(RectTransform rt, float inset = 0f)
+        {
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.offsetMin = new Vector2(inset, inset);
+            rt.offsetMax = new Vector2(-inset, -inset);
         }
 
         // Build a vertically-scrolling list under `parent`. Returns the

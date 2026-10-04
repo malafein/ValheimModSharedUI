@@ -6,13 +6,16 @@ nothing extra. It's kept apart from [ValheimModShared](https://github.com/malafe
 so mods without UI don't need the TextMeshPro and uGUI references or the `InventoryGui` patch.
 
 - `VanillaUI.cs`: borrows the game's own styling at runtime (Trophy panel frame, Craft button
-  look and hover states, title, button and body fonts, the Compendium scrollbar). Lazy, cached,
-  and falls back to flat styling if something can't be found.
-- `UIBuilder.cs`: `MakeChildRect`, `AddText` (TMP set up without the missing-font warning), and
-  `BuildScrollableList` (clipped, auto-sizing, with a vanilla scrollbar).
+  look and hover states, title, button and body fonts, the Compendium scrollbar, the sign
+  dialog's text field). Lazy, cached, and falls back to flat styling if something can't be
+  found.
+- `UIBuilder.cs`: `MakeChildRect`, `Stretch`, `AddText` (TMP set up without the missing-font
+  warning), `AddButton` (vanilla look), and `BuildScrollableList` (clipped, auto-sizing, with a
+  vanilla scrollbar).
 - `UIPalette.cs`: text colours matched to the Compendium, plus rich-text helpers.
 - `ModalPanels.cs`: register a panel's "is open" check and the game treats it like the inventory
-  while it's open: cursor freed, look and attack blocked, walking still allowed.
+  while it's open: cursor freed, look and attack blocked, walking still allowed, and the
+  inventory key can't open the inventory underneath it.
 
 ## Rules for this repo
 
@@ -28,8 +31,8 @@ so mods without UI don't need the TextMeshPro and uGUI references or the `Invent
 git submodule add git@github.com:malafein/ValheimModSharedUI.git SharedUI
 ```
 
-The mod's `.csproj` needs references to the game's `Unity.TextMeshPro.dll` and
-`UnityEngine.UI.dll` (the `UnityEngine.*Module.dll` wildcard doesn't cover them).
+The mod's `.csproj` needs references to the game's `Unity.TextMeshPro.dll`, `UnityEngine.UI.dll`
+and `gui_framework.dll` (the `UnityEngine.*Module.dll` wildcard doesn't cover them).
 
 ```csharp
 using malafein.Valheim.SharedUI;
