@@ -20,8 +20,7 @@ so mods without UI don't need the TextMeshPro and uGUI references or the `Invent
 - Everything is `internal` and lives in `malafein.Valheim.SharedUI`.
 - Don't reference a mod's `Plugin` class. Mods pass in what the library needs.
 - Depends on ValheimModShared (`Log`), so a mod using this also needs that submodule at `Shared/`.
-- Targets `net48` mods built against the game's own assemblies (Unity 6 Mono). Unlike the core
-  library, no net462 workarounds are needed here.
+- Targets `net48` mods built against the game's own assemblies (Unity 6 Mono), like the core library.
 
 ## Using it in a mod
 
