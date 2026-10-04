@@ -8,8 +8,9 @@ namespace malafein.Valheim.SharedUI
     // uGUI building blocks for mod panels, styled through VanillaUI.
     internal static class UIBuilder
     {
-        // Unity's default ScrollRect sensitivity (1) moves a list one pixel per wheel notch.
-        public const float DefaultScrollSensitivity = 40f;
+        // Unity's default ScrollRect sensitivity (1) moves a list one pixel per wheel notch. 300 is
+        // what TheSedimentaryPath's journal settled on in play.
+        public const float DefaultScrollSensitivity = 300f;
 
         public static RectTransform MakeChildRect(Transform parent, string name)
         {
